@@ -1,8 +1,8 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-// Helper method for generating unique ids
-const uuid = require('./helpers/uuid');
+const ShortUniqueId = require('short-unique-id');
+const notes = require("./db/db.json");
 
 const PORT = 3001;
 
@@ -17,59 +17,29 @@ app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
-// GET request for reviews
-app.get('/api/reviews', (req, res) => {
-  // Send a message to the client
-  res.json(`${req.method} request received to get reviews`);
+app.get('/notes', (req, res) =>
+  res.sendFile(path.join(__dirname, '/public/notes.html'))
+);
 
-  // Log our request to the terminal
-  console.info(`${req.method} request received to get reviews`);
+// GET request for notes
+app.get('/api/notes', (req, res) => {
+  res.json(notes);
 });
 
-// POST request to add a review
-app.post('/api/reviews', (req, res) => {
-  // Log that a POST request was received
-  //Get note
-  //Add note
+// POST request for notes
+app.post('/api/notes', (req, res) => {
+  //Add new note
+  const uid = new ShortUniqueId();
+  const id = uid.rnd()
+  notes.push({id, ...req.body});
+  
   //Re-write existing notes
-  console.info(`${req.method} request received to add a review`);
-
-  // Destructuring assignment for the items in req.body
-  const { product, review, username } = req.body;
-
-  // If all the required properties are present
-  if (product && review && username) {
-    // Variable for the object we will save
-    const newReview = {
-      product,
-      review,
-      username,
-      upvotes: Math.floor(Math.random() * 100),
-      review_id: uuid(),
-    };
-
-    // Convert the data to a string so we can save it
-    const reviewString = JSON.stringify(newReview);
-
-    // Write the string to a file
-    fs.writeFile(`./db/${newReview.product}.json`, reviewString, (err) =>
+    fs.writeFile(`./db/db.json`, JSON.stringify(notes), (err) =>
       err
         ? console.error(err)
-        : console.log(
-            `Review for ${newReview.product} has been written to JSON file`
-          )
+        : res.json(notes)
     );
 
-    const response = {
-      status: 'success',
-      body: newReview,
-    };
-
-    console.log(response);
-    res.status(201).json(response);
-  } else {
-    res.status(500).json('Error in posting review');
-  }
 });
 
 app.listen(PORT, () =>
