@@ -17,6 +17,10 @@
 
   Simply visit the website and click to generate a new note.
 
+  ## Website
+
+  https://notetaker42-9699568da27f.herokuapp.com/
+
   ## Credits
 
   I recieved a lot of help from a tutor and from the TA during office hours. Additionally I browsed StackOverflow and GitHub. 
